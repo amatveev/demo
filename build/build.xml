@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="as3CommonLibs"
+		 default="default"
+		 basedir=".">
+	<description>
+		Compile as3common lib
+	</description>
+	
+	<property  file="build.properties"/>
+	<property  file="docs.properties"/>
+
+	<echo>
+		FLEX_HOME: ${FLEX_HOME}
+	</echo>
+	
+	<taskdef resource="flexTasks.tasks"
+			 classpath="${FLEX_HOME}/${sdk.mxmlc.task}"/>
+	<taskdef resource="net/sf/antcontrib/antcontrib.properties"
+			 classpath="${ant.home}/lib/ant-contrib-0.6.jar"/>
+
+	<available  type="dir" property="result_dir" file="${output.dir}" />
+	
+	<target name="default"
+			depends="_removeLib, _build_SWC">
+	</target>
+	
+	<target name="_build_SWC" 
+			unless="skipLibsBuild">
+		
+		<compc fork="${build.mxmlcFork}"
+			   maxmemory="${build.maxmemory}"
+			   debug="${build.debug}"
+			   output="${output.dir}/${output.file}">
+			
+			<include-sources dir="${project_root}/${src.dir}"
+							 includes="${include.classes}"/>
+			<source-path path-element="${project_root}/${src.dir}"/>
+
+			<!--
+			<compiler.library-path dir="${external.swc}"
+								   append="true">
+				<include name="*.swc"/>
+
+			</compiler.library-path>
+			-->
+			<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml"/>
+			<!--
+			-->
+			<jvmarg value="-Duser.language=en"/>
+			<jvmarg value="-Duser.country=US"/>
+		</compc>
+	</target>
+
+	<target name="_removeLib" if="${result_dir}">
+		<delete includeEmptyDirs="true"> 
+				        <fileset dir="${output.dir}" includes="**/*"/> 
+				</delete>
+	</target>
+	<target name="_removeDocs">
+		<delete includeEmptyDirs="true"> 
+		        <fileset dir="${project_root}/${docs.output.dir}" includes="**/*"/> 
+		</delete>
+	</target>
+	<target name="createDocDir">
+		<mkdir dir="${project_root}/${docs.output.dir}"/>
+	</target>
+	<target name="generateDocumentation"
+			depends="createDocDir, _removeDocs">
+		
+		<asdoc 
+			fork="${build.mxmlcFork}"
+			maxmemory="${build.maxmemory}"
+			output="${project_root}/${docs.output.dir}"
+			examples-path="${project_root}/${docs.example.dir}"
+			lenient="true"
+			failonerror="true">
+			
+		     <doc-sources 
+		                path-element="${project_root}/${src.dir}" />
+			
+			<main-title>
+				AS3CommonLibs - API Documentation
+			</main-title>
+			
+			
+			<jvmarg value="-Duser.language=en"/>
+			<jvmarg value="-Duser.country=US"/>
+			
+		</asdoc>
+		
+	</target>
+	
+</project>
